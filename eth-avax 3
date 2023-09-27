@@ -1,0 +1,57 @@
+//SPDX-License-Identifier:MIT
+pragma solidity ^0.8.0;
+
+contract erc {
+    struct token {
+        string name;
+        string symbol;
+        uint8 decimals;
+        mapping(address => uint256) balances; 
+        address owner;
+    }
+
+    token public tk;
+
+    constructor() {
+        tk.name = "no token";
+        tk.symbol = "NA";
+        tk.decimals = 0;
+        tk.owner = address(0);
+        
+    }
+
+    function create(string memory n, string memory n2, uint8 d, address ad) public {
+        require(keccak256(abi.encodePacked(tk.symbol)) == keccak256(abi.encodePacked("NA")), "Symbols are not equal");
+
+        tk.name = n;
+        tk.decimals = d;
+        tk.symbol = n2;
+        tk.owner = ad;
+    }
+
+    function mint_token(uint256 a) public returns (uint256) {
+        require(msg.sender == tk.owner, "Unauthorized access");
+        tk.balances[msg.sender] += a; 
+        return tk.balances[msg.sender];
+    }
+    function burn(uint amt)public returns(uint)
+    {
+        require(amt<=tk.balances[msg.sender],"Token limit Exceeded!");
+        tk.balances[msg.sender]-=amt;
+        return tk.balances[msg.sender];
+    }
+    function transfer(address to, uint256 amount) public returns (bool) {
+        require(amount > 0, "Amount must be greater than zero");
+        require(tk.balances[msg.sender] >= amount, "Insufficient balance");
+        
+        tk.balances[msg.sender] -= amount;
+        tk.balances[to] += amount;
+        
+        emit Transfer(msg.sender, to, amount);  // Emit the Transfer event
+        
+        return true;
+    }
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+        
+}
