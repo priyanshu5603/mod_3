@@ -1,9 +1,8 @@
-
-##ERC Token Smart Contract (erc.sol)
-Overview
+#ERC Token Smart Contract (erc.sol)
+#Overview
 The erc.sol contract is a simple implementation of an ERC20-like token on the Ethereum blockchain. It allows for the creation, minting, burning, and transfer of tokens within the Ethereum network.
 
-Contract Structure
+#Contract Structure
 The contract consists of the following components:
 
 struct token: A data structure representing the token with attributes such as name, symbol, decimals, balances, and owner.
@@ -15,7 +14,7 @@ Name: "no token"
 Symbol: "NA"
 Decimals: 0
 Owner: address(0)
-Functions
+#Functions
 create
 Function signature: function create(string memory n, string memory n2, uint8 d, address ad) public
 Purpose: Allows the creation of a new token with specified attributes (name, symbol, decimals, and owner).
@@ -43,5 +42,3 @@ The contract emits a Transfer event whenever a transfer of tokens occurs. This e
 
 License
 This contract is provided under the MIT License (SPDX-License-Identifier: MIT), which allows for the use, modification, and distribution of the code with certain restrictions. Users of this contract should review and comply with the terms of the MIT License.
-
-Please note that this is a simplified example of an ERC20-like token contract and may not include all features and security measures found in production-ready tokens. It is essential to thoroughly test and audit any smart contract before deploying it to the Ethereum mainnet or any other blockchain network.
