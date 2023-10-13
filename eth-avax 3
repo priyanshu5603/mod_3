@@ -1,57 +1,83 @@
-//SPDX-License-Identifier:MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract erc {
-    struct token {
-        string name;
-        string symbol;
-        uint8 decimals;
-        mapping(address => uint256) balances; 
-        address owner;
-    }
+contract ERC20Token {
+    string public name;
+    string public symbol;
+    uint8 public decimals;
+    address public owner;
+    uint256 public totalSupply;
 
-    token public tk;
+    mapping(address => uint256) public balances;
+    mapping(address => mapping(address => uint256)) public allowances;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
     constructor() {
-        tk.name = "no token";
-        tk.symbol = "NA";
-        tk.decimals = 0;
-        tk.owner = address(0);
-        
+        name = "MEMECOIN";
+        symbol = "MEME";
+        decimals = 18; 
+        owner = msg.sender;
+        totalSupply = 0;
     }
 
-    function create(string memory n, string memory n2, uint8 d, address ad) public {
-        require(keccak256(abi.encodePacked(tk.symbol)) == keccak256(abi.encodePacked("NA")), "Symbols are not equal");
-
-        tk.name = n;
-        tk.decimals = d;
-        tk.symbol = n2;
-        tk.owner = ad;
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
     }
 
-    function mint_token(uint256 a) public returns (uint256) {
-        require(msg.sender == tk.owner, "Unauthorized access");
-        tk.balances[msg.sender] += a; 
-        return tk.balances[msg.sender];
+    function mint(address account, uint256 amount) public onlyOwner {
+        require(account != address(0), "Mint to the zero address");
+        totalSupply += amount;
+        balances[account] += amount;
+        emit Transfer(address(0), account, amount);
     }
-    function burn(uint amt)public returns(uint)
-    {
-        require(amt<=tk.balances[msg.sender],"Token limit Exceeded!");
-        tk.balances[msg.sender]-=amt;
-        return tk.balances[msg.sender];
+
+    function burn(uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        totalSupply -= amount;
+        emit Transfer(msg.sender, address(0), amount);
     }
-    function transfer(address to, uint256 amount) public returns (bool) {
-        require(amount > 0, "Amount must be greater than zero");
-        require(tk.balances[msg.sender] >= amount, "Insufficient balance");
-        
-        tk.balances[msg.sender] -= amount;
-        tk.balances[to] += amount;
-        
-        emit Transfer(msg.sender, to, amount);  // Emit the Transfer event
-        
+
+    function approve(address spender, uint256 amount) public returns (bool) {
+        allowances[msg.sender][spender] = amount;
+        emit Approval(msg.sender, spender, amount);
         return true;
     }
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
-        
+    function transfer(address to, uint256 amount) public returns (bool) {
+        require(amount > 0, "Amount must be greater than zero");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        require(to != address(0), "Invalid recipient address");
+
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+        emit Transfer(msg.sender, to, amount);
+
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 amount) public returns (bool) {
+        require(amount > 0, "Amount must be greater than zero");
+        require(balances[from] >= amount, "Insufficient balance");
+        require(to != address(0), "Invalid recipient address");
+        require(allowances[from][msg.sender] >= amount, "Allowance exceeded");
+
+        balances[from] -= amount;
+        balances[to] += amount;
+        allowances[from][msg.sender] -= amount;
+        emit Transfer(from, to, amount);
+
+        return true;
+    }
+
+    function allowance(address tokenOwner, address spender) public view returns (uint256) {
+        return allowances[tokenOwner][spender];
+    }
+
+    function balanceOf(address tokenOwner) public view returns (uint256) {
+        return balances[tokenOwner];
+    }
 }
